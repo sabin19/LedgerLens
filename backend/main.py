@@ -13,6 +13,7 @@ from openai import OpenAI, RateLimitError
 from fastapi.staticfiles import StaticFiles
 from streamlit import status
 
+
 # Import the database and schema modules you just created
 from backend.database import get_db_connection
 from backend.schemas import InvoiceSchema
@@ -217,3 +218,7 @@ def get_all_documents():
     rows = conn.execute("SELECT * FROM documents ORDER BY created_at DESC").fetchall()
     conn.close()
     return [dict(row) for row in rows]
+
+@app.get("/health")
+def health_check():
+    return {"status": "ok", "timestamp": datetime.datetime.now().isoformat()}   
