@@ -1,0 +1,18 @@
+# --- Security & Environment Variables ---
+.env
+
+# --- Database & User Uploads ---
+*.db
+ledgerlens.db
+uploads/
+
+# --- Python & Caching ---
+__pycache__/
+.pytest_cache/
+*.pyc
+.venv/
+venv/
+
+# --- OS specific ---
+.DS_Store
+Thumbs.db

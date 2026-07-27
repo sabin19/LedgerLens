@@ -1,0 +1,22 @@
+# Web Framework and Server
+fastapi
+uvicorn
+python-multipart
+
+# Frontend UI
+streamlit
+pandas
+requests
+
+# AI and Vision Engine
+openai
+pydantic
+
+# Image Processing
+pillow
+
+# Testing
+pytest
+
+# Observability
+prometheus-client
