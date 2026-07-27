@@ -7,7 +7,9 @@ import sqlite3
 import os
 
 
-API_BASE_URL = "http://backend:8000"
+#API_BASE_URL = "http://backend:8000"
+
+API_BASE_URL = os.getenv("API_BASE_URL", "http://backend:8000")
 
 st.set_page_config(layout="wide", page_title="LedgerLens")
 st.title("LedgerLens Document Intelligence")
