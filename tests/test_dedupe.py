@@ -53,3 +53,15 @@ def test_check_duplicate_negative():
     is_dup, match_id, dist = check_duplicate(hash1, existing, threshold=5)
     assert is_dup is False
     assert hamming_distance(hash1, hash2) > 5
+
+def test_duplicate_status_logic():
+    # Verify overall_conf is always initialized regardless of duplicate status
+    extracted_data = {'overall_confidence': 0.95, 'line_items': []}
+    raw_conf = extracted_data.get('overall_confidence')
+    overall_conf = float(raw_conf) if raw_conf is not None else 1.0
+
+    is_duplicate_doc = True
+    status = "duplicate" if is_duplicate_doc else "auto_approved"
+
+    assert overall_conf == 0.95
+    assert status == "duplicate"

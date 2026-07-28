@@ -84,13 +84,14 @@ async def ingest_document(
     if effective_threshold < 0.0 or effective_threshold > 1.0:
         effective_threshold = DEFAULT_REVIEW_THRESHOLD
 
+    # Safely parse overall confidence score
+    raw_conf = extracted_data.get('overall_confidence')
+    overall_conf = float(raw_conf) if raw_conf is not None else 1.0
+
     # Determine status (duplicate takes precedence if perceptual hash matched)
     if is_duplicate_doc:
         status = "duplicate"
     else:
-        raw_conf = extracted_data.get('overall_confidence')
-        overall_conf = float(raw_conf) if raw_conf is not None else 1.0
-            
         status = "auto_approved"
             
         if overall_conf < effective_threshold:
