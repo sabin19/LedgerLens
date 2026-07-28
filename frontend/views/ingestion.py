@@ -8,20 +8,26 @@ def render_ingestion():
     st.markdown("Upload a receipt, invoice, or bill to automatically extract structured data using the vision engine.")
     st.divider()
     
-    # 1. RESTORED: CSS to center the file uploader and make it look like a neat button
+    # CSS to style and add proper padding to the file uploader button and dropzone
     st.markdown("""
         <style>
-            div[data-testid="stFileUploader"] { display: flex; justify-content: center; align-items: center; padding-top: 180px; }
-            div[data-testid="stFileUploaderDropzone"] {
-                width: 130px !important; height: 130px !important; background-color: #333333 !important; 
-                border-radius: 12px !important; border: none !important; display: flex;
-                justify-content: center; align-items: center; cursor: pointer; padding: 0 !important;
+            div[data-testid="stFileUploader"] { 
+                display: flex; 
+                justify-content: center; 
+                align-items: center; 
+                padding-top: 120px; 
             }
-            div[data-testid="stFileUploaderDropzone"]:hover { background-color: #444444 !important; }
-            div[data-testid="stFileUploaderDropzone"] > div { display: none; }
-            div[data-testid="stFileUploaderDropzone"]::after {
-                content: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" height="42" viewBox="0 -960 960 960" width="42" fill="white"><path d="M200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h360v80H200v560h560v-360h80v360q0 33-23.5 56.5T760-120H200Zm40-160h480L570-480 450-320l-90-120-120 160Zm440-320v-80h-80v-80h80v-80h80v80h80v80h-80v80h-80Z"/></svg>');
-                display: block;
+            div[data-testid="stFileUploaderDropzone"] {
+                padding: 1.25rem 1.75rem !important;
+                border-radius: 12px !important;
+            }
+            div[data-testid="stFileUploader"] button,
+            div[data-testid="stFileUploaderDropzone"] button,
+            section[data-testid="stFileUploaderDropzone"] button,
+            button[data-testid="baseButton-secondary"] {
+                padding: 10px 24px !important;
+                margin-right: 12px !important;
+                border-radius: 8px !important;
             }
         </style>
     """, unsafe_allow_html=True)
