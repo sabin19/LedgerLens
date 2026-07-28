@@ -11,7 +11,7 @@ def render_dashboard():
         st.markdown("Overview of processed documents, total spend, and automation performance.")
     with header_col2:
         if st.button("🚀 Process Document", type="primary", use_container_width=True):
-            st.session_state.active_tab = "Upload Document"
+            st.session_state.switch_to_upload = True
             st.rerun()
     
     raw_data = api_client.fetch_documents()
@@ -24,7 +24,7 @@ def render_dashboard():
     if dashboard_df.empty:
         st.info("Upload your first document to populate the dashboard!")
         if st.button("🚀 Process Your First Document", type="primary"):
-            st.session_state.active_tab = "Upload Document"
+            st.session_state.switch_to_upload = True
             st.rerun()
         return
 

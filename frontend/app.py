@@ -1,4 +1,5 @@
 import streamlit as st
+import streamlit.components.v1 as components
 
 # Import our modular views
 from frontend.views.dashboard import render_dashboard
@@ -14,35 +15,40 @@ if "doc_image" not in st.session_state:
     st.session_state.doc_image = None
 if "db_page" not in st.session_state:
     st.session_state.db_page = 1
-if "active_tab" not in st.session_state:
-    st.session_state.active_tab = "Dashboard"
+if "switch_to_upload" not in st.session_state:
+    st.session_state.switch_to_upload = False
 
 # Render main title
 st.title("Invoice Lense Document Intelligence")
 
-# Setup Navigation
-tabs = ["Dashboard", "Upload Document", "Review Queue", "Database View"]
+# Setup Navigation using native Streamlit Tabs
+tab1, tab2, tab3, tab4 = st.tabs(["Dashboard", "Upload Document", "Review Queue", "Database View"])
 
-# Keep active_tab in sync
-current_index = tabs.index(st.session_state.active_tab) if st.session_state.active_tab in tabs else 0
-
-selected_tab = st.radio(
-    "Navigation",
-    tabs,
-    index=current_index,
-    horizontal=True,
-    label_visibility="collapsed",
-    key="nav_radio"
-)
-
-if selected_tab != st.session_state.active_tab:
-    st.session_state.active_tab = selected_tab
-
-if st.session_state.active_tab == "Dashboard":
+with tab1:
     render_dashboard()
-elif st.session_state.active_tab == "Upload Document":
+
+with tab2:
     render_ingestion()
-elif st.session_state.active_tab == "Review Queue":
+
+with tab3:
     render_review_queue()
-elif st.session_state.active_tab == "Database View":
+
+with tab4:
     render_database_view()
+
+# Programmatic tab switcher triggered from Dashboard button click
+if st.session_state.get("switch_to_upload"):
+    st.session_state.switch_to_upload = False
+    components.html(
+        """
+        <script>
+            setTimeout(function() {
+                var tabs = window.parent.document.querySelectorAll('button[data-baseweb="tab"], [role="tab"]');
+                if (tabs && tabs.length > 1) {
+                    tabs[1].click();
+                }
+            }, 100);
+        </script>
+        """,
+        height=0,
+    )
