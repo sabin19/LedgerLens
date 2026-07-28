@@ -9,7 +9,7 @@ from frontend.views.review_queue import render_review_queue
 from frontend.views.database_view import render_database_view
 
 # Configure the global page settings
-st.set_page_config(layout="wide", page_title="Invoice Lense")
+st.set_page_config(layout="wide", page_title="Invoice Lens")
 
 # Initialize global session state variables
 if "doc_image" not in st.session_state:
