@@ -5,6 +5,26 @@ import math
 from frontend.services import api_client
 from frontend.components.dialogs import view_photo_dialog, view_extracted_json_dialog, view_reviewed_json_dialog
 
+def prepare_csv_export_data(df: pd.DataFrame) -> bytes:
+    """Formats DataFrame into CSV bytes for user download."""
+    if df is None or df.empty:
+        return b""
+    export_cols = {
+        'id': 'ID',
+        'filename': 'Filename',
+        'status': 'Status',
+        'parsed_vendor': 'Vendor',
+        'parsed_currency': 'Currency',
+        'parsed_tax': 'Tax Amount',
+        'parsed_total': 'Total Amount',
+        'overall_confidence': 'Confidence',
+        'created_at': 'Created At'
+    }
+    existing_cols = [c for c in export_cols.keys() if c in df.columns]
+    export_df = df[existing_cols].rename(columns=export_cols)
+    return export_df.to_csv(index=False).encode('utf-8')
+
+
 def render_database_view():
     st.markdown("""
         <style>
@@ -117,8 +137,20 @@ def render_database_view():
     end_idx = start_idx + ITEMS_PER_PAGE
     page_df = df.iloc[start_idx:end_idx]
 
-    # 6. Render the Data Table
-    st.markdown(f"**Showing {total_items} results**")
+    # 6. Render the Data Table & Export CSV Control
+    col_info, col_export = st.columns([3, 1], vertical_alignment="center")
+    with col_info:
+        st.markdown(f"**Showing {total_items} results**")
+    with col_export:
+        csv_bytes = prepare_csv_export_data(df)
+        st.download_button(
+            label="📥 Export CSV",
+            data=csv_bytes,
+            file_name="ledgerlens_database_export.csv",
+            mime="text/csv",
+            use_container_width=True,
+            key="export_csv_btn"
+        )
     
     with st.container(border=True):
         # Adjusted the last column ratio from 1.5 to 1.8 to fit 3 buttons nicely
