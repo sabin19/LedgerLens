@@ -94,6 +94,7 @@ Automatically extracts structured financial fields with confidence scores using 
 ---
 
 ### 🛡️ Error Handling & Security
+- **Frontend Access Token Gate**: Protects dashboard access with environment-configured secret token (`ACCESS_TOKEN`).
 - **Content Moderation Gate**: Passes images through OpenAI's `omni-moderation-latest` to block unsafe or non-document content.
 - **PII Redaction Engine**: Automatically redacts sensitive information (SSN, emails, phone numbers) before database insertion.
 - **Rate Limit Resilience**: Automatic exponential backoff retries for OpenAI API rate limits (`429`).
@@ -209,7 +210,8 @@ LedgerLens/
 │   ├── components/
 │   │   └── dialogs.py          # Streamlit UI dialog helpers
 │   ├── services/
-│   │   └── api_client.py       # API HTTP client wrapper
+│   │   ├── api_client.py       # API HTTP client wrapper
+│   │   └── auth.py             # Access token verification & env loader
 │   ├── views/
 │   │   ├── dashboard.py        # Analytics overview tab
 │   │   ├── database_view.py    # Searchable database table tab
@@ -218,6 +220,7 @@ LedgerLens/
 │   └── app.py                  # Streamlit entry point
 ├── tests/
 │   ├── test_api.py             # End-to-end API ingestion test
+│   ├── test_auth.py            # Unit tests for frontend access token gate
 │   ├── test_dialog_titles.py   # Unit tests for JSON view dialog titles
 │   ├── test_review_validation.py # Unit tests for human review input validation
 │   ├── test_schema_contracts.py# Pydantic schema contract tests
@@ -238,6 +241,9 @@ Create a `.env` file in the root directory:
 ```env
 # Required: OpenAI API Key for Vision & Moderation
 OPENAI_API_KEY=your_openai_api_key_here
+
+# Frontend Access Token Gate
+ACCESS_TOKEN=1ac3111181d1806767d5f1bfd07b5142d48911d48b3c6b4d7bf5bd98930a35a0
 
 # Streamlit API Connection URL (Default for local/docker)
 API_BASE_URL=http://localhost:8000
@@ -277,7 +283,10 @@ PORT=8000
    ```
 
 4. **Set Up Environment Variables:**
-   Create a `.env` file in the project root with your `OPENAI_API_KEY`.
+   Create a `.env` file in the project root with your `OPENAI_API_KEY` and `ACCESS_TOKEN`:
+   ```bash
+   cp .env.example .env  # Or create .env directly
+   ```
 
 5. **Start the FastAPI Backend Service:**
    ```bash
@@ -294,6 +303,7 @@ PORT=8000
    streamlit run frontend/app.py --server.port 8501
    ```
    - Web Application UI: `http://localhost:8501`
+   - **Access Gate**: Enter the configured `ACCESS_TOKEN` when prompted on the landing page to unlock the dashboard.
 
 ---
 
