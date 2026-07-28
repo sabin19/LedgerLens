@@ -35,6 +35,13 @@ def approve_document(doc_id, edited_data):
     except requests.exceptions.ConnectionError:
         return 503
 
+def move_to_review(doc_id):
+    try:
+        response = requests.post(f"{API_BASE_URL}/move-to-review", params={"doc_id": doc_id})
+        return response.status_code
+    except requests.exceptions.ConnectionError:
+        return 503
+
 def fetch_watermarked_image(doc_id):
     image_url = f"{API_BASE_URL}/uploads/{doc_id}/watermarked.png"
     try:

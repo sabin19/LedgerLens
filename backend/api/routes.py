@@ -22,7 +22,7 @@ TOKEN_COST_USD = Counter("token_cost_usd", "Estimated token cost in USD")
 AUTO_APPROVALS = Counter("auto_approvals_total", "Total documents automatically approved")
 DOCS_PROCESSED = Counter("throughput_docs_total", "Total documents processed")
 ESTIMATED_COST_PER_TOKEN = 0.0000003
-REVIEW_THRESHOLD = 0.90
+REVIEW_THRESHOLD = 0.95
 
 @router.post("/ingest")
 async def ingest_document(file: UploadFile = File(...)):
@@ -109,6 +109,11 @@ def get_review_queue():
 @router.post("/approve")
 def approve_document(doc_id: str, corrected_data: dict):
     crud.update_document_status(doc_id, corrected_data)
+    return {"status": "success", "doc_id": doc_id}
+
+@router.post("/move-to-review")
+def move_to_review(doc_id: str):
+    crud.mark_for_review(doc_id)
     return {"status": "success", "doc_id": doc_id}
 
 @router.get("/documents")

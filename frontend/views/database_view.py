@@ -141,22 +141,37 @@ def render_database_view():
             conf_display = f"{float(conf_val)*100:.0f}%" if pd.notna(conf_val) and conf_val is not None else "N/A"
             r_cols[5].markdown(f"{conf_display}")
             
-            # Actions (3 Buttons)
+            # Actions
+            conf_float = float(conf_val) if pd.notna(conf_val) and conf_val is not None else 1.0
+            show_move_review = conf_float < 0.95 and status != 'pending_review'
+
             with r_cols[6]:
-                btn_col1, btn_col2, btn_col3 = st.columns(3)
-                with btn_col1:
+                num_cols = 4 if show_move_review else 3
+                btn_cols = st.columns(num_cols)
+                
+                with btn_cols[0]:
                     if st.button("🤖", key=f"ext_{row['id']}", help="View Extracted JSON"):
                         view_json_dialog(row.get('extracted_json', '{}'))
-                with btn_col2:
+                with btn_cols[1]:
                     if st.button("🧑‍💻", key=f"rev_{row['id']}", help="View Reviewed JSON"):
                         reviewed_data = row.get('reviewed_json', '')
                         if pd.notna(reviewed_data) and str(reviewed_data).strip() != "":
                             view_json_dialog(reviewed_data)
                         else:
                             st.toast("No reviewed JSON available for this document.")
-                with btn_col3:
+                with btn_cols[2]:
                     if st.button("🖼️", key=f"img_{row['id']}", help="View Original Image"):
                         view_photo_dialog(row['id'])
+                        
+                if show_move_review:
+                    with btn_cols[3]:
+                        if st.button("⚠️", key=f"mov_{row['id']}", help="Move to Review Queue (Confidence < 95%)"):
+                            res_code = api_client.move_to_review(row['id'])
+                            if res_code == 200:
+                                st.toast(f"Moved {row.get('filename', 'document')} to Review Queue!")
+                                st.rerun()
+                            else:
+                                st.error("Failed to move document status.")
             
             st.markdown("<hr style='margin: 0.2em 0; border: none; border-top: 1px solid #eee;' />", unsafe_allow_html=True)
 

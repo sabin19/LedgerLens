@@ -79,12 +79,29 @@ def render_ingestion():
                         if status_code == 200 and isinstance(result, dict):
                             status = result.get('status', 'unknown')
                                 
+                            data_obj = result.get("data", {})
+                            doc_id = result.get("doc_id")
+                            raw_conf = data_obj.get("overall_confidence", 1.0)
+                            try:
+                                conf_val = float(raw_conf)
+                            except (ValueError, TypeError):
+                                conf_val = 1.0
+
                             if status == "auto_approved":
                                 st.success(f"✅ Processed Successfully! (Status: {status})")
                             else:
                                 st.warning(f"⚠️ Flagged for Review (Status: {status})")
                                 
-                            st.json(result.get("data", {}))
+                            if conf_val < 0.95 and status != "pending_review" and doc_id:
+                                if st.button("⚠️ Move to Review Queue", key=f"ingest_mov_{doc_id}", type="secondary"):
+                                    res_code = api_client.move_to_review(doc_id)
+                                    if res_code == 200:
+                                        st.toast("✅ Moved document to Review Queue!")
+                                        st.rerun()
+                                    else:
+                                        st.error("Failed to update status in database.")
+
+                            st.json(data_obj)
                         elif status_code == 503:
                             st.error("Failed to connect to backend. Is the FastAPI server running?")
                         else:
