@@ -32,7 +32,7 @@ Built using **FastAPI**, **Streamlit**, **SQLite**, and **OpenAI GPT Vision Engi
 6. [Environment Variables](#-environment-variables)
 7. [Step-by-Step Running & Setup](#-step-by-step-running--setup)
     - [Option 1: Native Python Setup](#option-1-native-python-setup)
-    - [Option 2: Docker Compose Setup](#option-2-docker-compose-setup)
+    - [Option 2: Docker Compose Setup(Recommended)](#option-2-docker-compose-setup)
 8. [Step-by-Step Deployment Guide (Render)](#-step-by-step-deployment-guide-render)
 9. [API Endpoints](#-api-endpoints)
 10. [Observability & Testing](#-observability--testing)
