@@ -116,20 +116,48 @@ def render_review_queue():
                     new_tax = st.number_input("Tax Amount", value=tax_val, step=0.01, key=f"tx_{doc_id}")
 
                 st.markdown("#### 🛒 Line Items")
-                raw_line_items = extracted_data.get('line_items', [])
-                if not isinstance(raw_line_items, list):
-                    raw_line_items = []
-                    
-                line_items_df = pd.DataFrame(raw_line_items)
-                if line_items_df.empty:
-                    line_items_df = pd.DataFrame(columns=["description", "quantity", "unit_price", "amount", "confidence"])
+                st.caption("💡 *Tip: You can edit cells, select the checkbox on the left of any row and press Delete, or use the **Remove Row** selector below.*")
+                
+                line_items_state_key = f"line_items_df_{doc_id}"
+                if line_items_state_key not in st.session_state:
+                    raw_line_items = extracted_data.get('line_items', [])
+                    if not isinstance(raw_line_items, list):
+                        raw_line_items = []
+                    line_items_df = pd.DataFrame(raw_line_items)
+                    if line_items_df.empty:
+                        line_items_df = pd.DataFrame(columns=["description", "quantity", "unit_price", "amount", "confidence"])
+                    st.session_state[line_items_state_key] = line_items_df
 
                 edited_line_items_df = st.data_editor(
-                    line_items_df,
+                    st.session_state[line_items_state_key],
                     num_rows="dynamic",
                     use_container_width=True,
                     key=f"line_items_editor_{doc_id}"
                 )
+                st.session_state[line_items_state_key] = edited_line_items_df
+
+                if not edited_line_items_df.empty:
+                    del_col1, del_col2 = st.columns([3, 1])
+                    with del_col1:
+                        row_options = list(range(1, len(edited_line_items_df) + 1))
+                        def format_row_label(i):
+                            desc = edited_line_items_df.iloc[i-1].get('description', '')
+                            desc_str = f" ({desc})" if desc and pd.notna(desc) else ""
+                            return f"Row #{i}{desc_str}"
+
+                        selected_row_idx = st.selectbox(
+                            "Select row to remove:",
+                            options=row_options,
+                            format_func=format_row_label,
+                            key=f"select_del_row_{doc_id}"
+                        )
+                    with del_col2:
+                        st.markdown("<div style='margin-top: 28px;'></div>", unsafe_allow_html=True)
+                        if st.button("🗑️ Remove Row", key=f"btn_del_row_{doc_id}", type="secondary", use_container_width=True):
+                            if 1 <= selected_row_idx <= len(edited_line_items_df):
+                                new_df = edited_line_items_df.drop(edited_line_items_df.index[selected_row_idx - 1]).reset_index(drop=True)
+                                st.session_state[line_items_state_key] = new_df
+                                st.rerun()
 
                 st.markdown("<br>", unsafe_allow_html=True)
                 if st.button("✅ Approve & Save Corrections", key=f"btn_approve_{doc_id}", type="primary", use_container_width=True):
