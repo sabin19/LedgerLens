@@ -11,6 +11,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy the rest of the application
 COPY . .
 
+# Force Python to recognize the root folder for imports
+ENV PYTHONPATH="/app"
+
 # Expose the port (Render ignores this, but it's good practice)
 EXPOSE 8000
 

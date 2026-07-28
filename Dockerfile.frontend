@@ -11,6 +11,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy the rest of the application
 COPY . .
 
+# Force Python to recognize the root folder for imports
+ENV PYTHONPATH="/app"
+
 # Expose Streamlit port
 EXPOSE 8501
 
