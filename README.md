@@ -243,7 +243,7 @@ Create a `.env` file in the root directory:
 OPENAI_API_KEY=your_openai_api_key_here
 
 # Frontend Access Token Gate
-ACCESS_TOKEN=1ac3111181d1806767d5f1bfd07b5142d48911d48b3c6b4d7bf5bd98930a35a0
+ACCESS_TOKEN=your_secret_access_token_here
 
 # Streamlit API Connection URL (Default for local/docker)
 API_BASE_URL=http://localhost:8000
@@ -349,7 +349,7 @@ Run both Backend and Frontend services in isolated Docker containers:
 4. Set **Dockerfile Path**: `Dockerfile.frontend`.
 5. Add Environment Variables:
    - `API_BASE_URL`: `<Your Backend Service URL from Step 1>`
-   - `ACCESS_TOKEN`: `<Your secret access token (e.g. 1ac3111181d1806767d5f1bfd07b5142d48911d48b3c6b4d7bf5bd98930a35a0)>`
+   - `ACCESS_TOKEN`: `<Your secret access token (e.g. your_secret_access_token_here)>`
    - `PYTHONPATH`: `/app`
 6. Click **Create Web Service**. Access the live application URL upon successful deployment.
 
