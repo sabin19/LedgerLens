@@ -63,7 +63,7 @@ Automatically extracts structured financial fields with confidence scores using 
 ---
 
 ### ✍️ Manual Review (Human-in-the-Loop)
-- **Pending Queue Routing**: Low-confidence extractions (`< 95%`) are automatically flagged for review.
+- **Pending Queue Routing**: Low-confidence extractions (`< 75%`) are automatically flagged for review.
 - **Visual Verification**: View original watermarked receipt side-by-side with extracted values.
 - **Line-Item & Metadata Editing**: Edit vendor, amounts, dates, and line items directly in the UI.
 - **Strict Input Validation**: Validates all user inputs on metadata and line items to block `null`, `None`, `NaN`, or empty string submissions.

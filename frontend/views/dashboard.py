@@ -9,10 +9,7 @@ def render_dashboard():
     with header_col1:
         st.markdown("### 📈 Executive Dashboard")
         st.markdown("Overview of processed documents, total spend, and automation performance.")
-    with header_col2:
-        if st.button("🚀 Process Document", key="btn_process_doc_dashboard", type="primary", use_container_width=True):
-            st.session_state.switch_to_upload = True
-            st.rerun()
+     
     
     raw_data = api_client.fetch_documents()
     if raw_data is None:
@@ -20,6 +17,12 @@ def render_dashboard():
         dashboard_df = pd.DataFrame()
     else:
         dashboard_df = pd.DataFrame(raw_data)
+
+    if not dashboard_df.empty:
+            with header_col2:
+                if st.button("🚀 Process Document", key="btn_process_doc_dashboard", type="primary", use_container_width=True):
+                    st.session_state.switch_to_upload = True
+                    st.rerun()
 
     if dashboard_df.empty:
         st.info("Upload your first document to populate the dashboard!")

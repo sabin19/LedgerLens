@@ -22,7 +22,7 @@ TOKEN_COST_USD = Counter("token_cost_usd", "Estimated token cost in USD")
 AUTO_APPROVALS = Counter("auto_approvals_total", "Total documents automatically approved")
 DOCS_PROCESSED = Counter("throughput_docs_total", "Total documents processed")
 ESTIMATED_COST_PER_TOKEN = 0.0000003
-REVIEW_THRESHOLD = 0.95
+REVIEW_THRESHOLD = 0.75
 
 @router.post("/ingest")
 async def ingest_document(file: UploadFile = File(...)):
