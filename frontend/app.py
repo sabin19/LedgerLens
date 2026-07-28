@@ -45,7 +45,7 @@ if required_token and not st.session_state.authenticated:
 col_title, col_logout = st.columns([5, 1], vertical_alignment="center")
 
 with col_title:
-    st.title("Invoice Lense Document Intelligence")
+    st.title("Invoice Lens Document Intelligence")
 
 with col_logout:
     if required_token and st.session_state.authenticated:
