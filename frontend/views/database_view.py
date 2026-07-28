@@ -3,7 +3,7 @@ import pandas as pd
 import json
 import math
 from frontend.services import api_client
-from frontend.components.dialogs import view_photo_dialog, view_json_dialog
+from frontend.components.dialogs import view_photo_dialog, view_extracted_json_dialog, view_reviewed_json_dialog
 
 def render_database_view():
     st.markdown("### 🗄️ Document Database")
@@ -152,12 +152,12 @@ def render_database_view():
                 
                 with btn_cols[0]:
                     if st.button("🤖", key=f"ext_{row['id']}", help="View Extracted JSON"):
-                        view_json_dialog(row.get('extracted_json', '{}'))
+                        view_extracted_json_dialog(row.get('extracted_json', '{}'))
                 with btn_cols[1]:
                     if st.button("🧑‍💻", key=f"rev_{row['id']}", help="View Reviewed JSON"):
                         reviewed_data = row.get('reviewed_json', '')
                         if pd.notna(reviewed_data) and str(reviewed_data).strip() != "":
-                            view_json_dialog(reviewed_data)
+                            view_reviewed_json_dialog(reviewed_data)
                         else:
                             st.toast("No reviewed JSON available for this document.")
                 with btn_cols[2]:

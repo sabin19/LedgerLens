@@ -11,8 +11,7 @@ def view_photo_dialog(doc_id):
     else:
         st.error(f"Failed to load image. (Error {status})")
 
-@st.dialog("Extracted JSON Data", width="large")
-def view_json_dialog(json_data):
+def _render_json_content(json_data):
     if not json_data or pd.isna(json_data):
         st.info("No JSON data available.")
         return
@@ -21,6 +20,17 @@ def view_json_dialog(json_data):
         st.json(parsed_data)
     except Exception as e:
         st.error(f"Failed to parse JSON data: {str(e)}")
+
+@st.dialog("🤖 Extracted JSON Data", width="large")
+def view_extracted_json_dialog(json_data):
+    _render_json_content(json_data)
+
+@st.dialog("🧑‍💻 Reviewed JSON Data", width="large")
+def view_reviewed_json_dialog(json_data):
+    _render_json_content(json_data)
+
+# Backward compatibility alias
+view_json_dialog = view_extracted_json_dialog
 
 @st.dialog("Original Document View", width="large")
 def view_original_image_dialog(image_bytes):
