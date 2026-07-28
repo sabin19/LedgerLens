@@ -67,6 +67,7 @@ def render_ingestion():
                 with btn_col2:
                     if st.button("❌ Remove Image", key="btn_remove_image_ingest", type="secondary", use_container_width=True):
                         st.session_state.doc_image = None
+                        st.session_state.last_extraction_result = None
                         st.rerun()
 
     with result_col:
@@ -89,38 +90,35 @@ def render_ingestion():
                     with st.spinner("Analyzing document with vision model..."):
                         files = {"file": (doc["name"], doc["bytes"], doc["type"])}
                         status_code, result = api_client.upload_document(files, review_threshold=threshold_pct / 100.0)
+                        st.session_state.last_extraction_result = {"status_code": status_code, "result": result}
+
+                res_info = st.session_state.get("last_extraction_result")
+                if res_info:
+                    status_code = res_info["status_code"]
+                    result = res_info["result"]
+                    
+                    if status_code == 200 and isinstance(result, dict):
+                        status = result.get('status', 'unknown')
+                        data_obj = result.get("data", {})
+                        doc_id = result.get("doc_id", "latest")
                         
-                        if status_code == 200 and isinstance(result, dict):
-                            status = result.get('status', 'unknown')
-                                
-                            data_obj = result.get("data", {})
-                            doc_id = result.get("doc_id")
-                            raw_conf = data_obj.get("overall_confidence", 1.0)
-                            try:
-                                conf_val = float(raw_conf)
-                            except (ValueError, TypeError):
-                                conf_val = 1.0
-
-                            if status == "auto_approved":
-                                st.success(f"✅ Processed Successfully! (Status: {status})")
-                            else:
-                                st.warning(f"⚠️ Flagged for Review (Status: {status})")
-                                
-                            if conf_val < 0.95 and status != "pending_review" and doc_id:
-                                if st.button("⚠️ Move to Review Queue", key=f"ingest_mov_{doc_id}", type="secondary"):
-                                    res_code = api_client.move_to_review(doc_id)
-                                    if res_code == 200:
-                                        st.toast("✅ Moved document to Review Queue!")
-                                        st.rerun()
-                                    else:
-                                        st.error("Failed to update status in database.")
-
-                            st.json(data_obj)
-                        elif status_code == 503:
-                            st.error("Failed to connect to backend. Is the FastAPI server running?")
+                        if status == "auto_approved":
+                            st.success(f"✅ Processed Successfully! (Status: {status})")
+                            if st.button("➡️ Go to Database View", key=f"btn_nav_db_{doc_id}", type="primary", use_container_width=True):
+                                st.session_state.switch_to_tab = 3
+                                st.rerun()
                         else:
-                            st.error(f"Error {status_code}: {result}")
-                else:
+                            st.warning(f"⚠️ Flagged for Review (Status: {status})")
+                            if st.button("✍️ Go to Review Queue", key=f"btn_nav_rev_{doc_id}", type="primary", use_container_width=True):
+                                st.session_state.switch_to_tab = 2
+                                st.rerun()
+
+                        st.json(data_obj)
+                    elif status_code == 503:
+                        st.error("Failed to connect to backend. Is the FastAPI server running?")
+                    else:
+                        st.error(f"Error {status_code}: {result}")
+                elif not process_btn:
                     st.markdown("### 🤖 System Ready")
                     st.markdown("The Invoice Lense vision engine is standing by...")
                     st.info("👆 Click **Process Document** to begin extraction.")

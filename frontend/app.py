@@ -68,18 +68,25 @@ with tab3:
 with tab4:
     render_database_view()
 
-# Programmatic tab switcher triggered from Dashboard button click
+# Programmatic tab switcher triggered from buttons
+target_tab_idx = None
 if st.session_state.get("switch_to_upload"):
     st.session_state.switch_to_upload = False
+    target_tab_idx = 1
+elif st.session_state.get("switch_to_tab") is not None:
+    target_tab_idx = st.session_state.switch_to_tab
+    st.session_state.switch_to_tab = None
+
+if target_tab_idx is not None:
     components.html(
-        """
+        f"""
         <script>
-            setTimeout(function() {
+            setTimeout(function() {{
                 var tabs = window.parent.document.querySelectorAll('button[data-baseweb="tab"], [role="tab"]');
-                if (tabs && tabs.length > 1) {
-                    tabs[1].click();
-                }
-            }, 100);
+                if (tabs && tabs.length > {target_tab_idx}) {{
+                    tabs[{target_tab_idx}].click();
+                }}
+            }}, 100);
         </script>
         """,
         height=0,
