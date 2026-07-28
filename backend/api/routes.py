@@ -102,12 +102,44 @@ async def ingest_document(file: UploadFile = File(...)):
     
     return {"doc_id": doc_id, "status": status, "data": extracted_data}
 
+import math
+
+def is_invalid_value(val):
+    if val is None:
+        return True
+    if isinstance(val, float) and math.isnan(val):
+        return True
+    if isinstance(val, str) and not val.strip():
+        return True
+    return False
+
+def validate_human_corrected_data(data: dict):
+    if not isinstance(data, dict):
+        raise HTTPException(status_code=400, detail="Invalid payload format.")
+
+    required_keys = ["vendor", "date", "currency", "subtotal", "tax", "total", "line_items"]
+    for key in required_keys:
+        if key not in data or is_invalid_value(data[key]):
+            raise HTTPException(status_code=400, detail=f"Invalid approval payload: '{key}' cannot be null or empty.")
+
+    line_items = data.get("line_items")
+    if not isinstance(line_items, list) or len(line_items) == 0:
+        raise HTTPException(status_code=400, detail="Invalid approval payload: 'line_items' must be a non-empty list.")
+
+    for idx, item in enumerate(line_items, start=1):
+        if not isinstance(item, dict):
+            raise HTTPException(status_code=400, detail=f"Invalid approval payload: line item #{idx} must be a dictionary.")
+        for k, v in item.items():
+            if is_invalid_value(v):
+                raise HTTPException(status_code=400, detail=f"Invalid approval payload: line item #{idx} field '{k}' cannot be null or empty.")
+
 @router.get("/review")
 def get_review_queue():
     return crud.get_pending_reviews()
 
 @router.post("/approve")
 def approve_document(doc_id: str, corrected_data: dict):
+    validate_human_corrected_data(corrected_data)
     crud.update_document_status(doc_id, corrected_data)
     return {"status": "success", "doc_id": doc_id}
 

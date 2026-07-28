@@ -3,6 +3,50 @@ import pandas as pd
 import json
 from frontend.services import api_client
 
+import math
+
+def is_null_or_empty(val):
+    if val is None or pd.isna(val):
+        return True
+    if isinstance(val, float) and math.isnan(val):
+        return True
+    if isinstance(val, str) and not val.strip():
+        return True
+    return False
+
+def validate_review_payload(vendor, inv_num, date_str, currency, subtotal, tax, total, updated_line_items):
+    """
+    Validates human input for review queue approval. Returns (is_valid: bool, error_message: str).
+    Ensures no null, None, NaN, or empty values anywhere in human input.
+    """
+    if is_null_or_empty(vendor):
+        return False, "Vendor / Merchant Name cannot be null or empty."
+    if is_null_or_empty(inv_num):
+        return False, "Invoice Number cannot be null or empty."
+    if is_null_or_empty(date_str):
+        return False, "Date cannot be null or empty."
+    if is_null_or_empty(currency):
+        return False, "Currency Code cannot be null or empty."
+    if is_null_or_empty(subtotal):
+        return False, "Subtotal amount cannot be null or empty."
+    if is_null_or_empty(tax):
+        return False, "Tax amount cannot be null or empty."
+    if is_null_or_empty(total):
+        return False, "Total amount cannot be null or empty."
+
+    if not isinstance(updated_line_items, list) or len(updated_line_items) == 0:
+        return False, "At least one line item is required."
+
+    for idx, item in enumerate(updated_line_items, start=1):
+        if not isinstance(item, dict):
+            return False, f"Line item #{idx} is invalid."
+        for key, val in item.items():
+            if is_null_or_empty(val):
+                readable_key = key.replace('_', ' ').title()
+                return False, f"Line item #{idx} column '{readable_key}' cannot be null or empty."
+
+    return True, ""
+
 def render_review_queue():
     st.markdown("### ✍️ Human Review Queue")
     st.markdown("Inspect documents flagged for review, correct extracted metadata or line items, and commit to database.")
@@ -95,25 +139,40 @@ def render_review_queue():
                     except Exception:
                         updated_line_items = raw_line_items
 
-                    # Construct updated JSON payload
-                    corrected_payload = {
-                        "vendor": new_vendor,
-                        "vendor_name": new_vendor,
-                        "invoice_number": new_inv_num,
-                        "date": new_date,
-                        "currency": new_currency,
-                        "subtotal": new_subtotal,
-                        "tax": new_tax,
-                        "tax_amount": new_tax,
-                        "total": new_total,
-                        "total_amount": new_total,
-                        "line_items": updated_line_items,
-                        "overall_confidence": extracted_data.get("overall_confidence", 1.0)
-                    }
+                    # Validate human input before proceeding
+                    is_valid, err_msg = validate_review_payload(
+                        vendor=new_vendor,
+                        inv_num=new_inv_num,
+                        date_str=new_date,
+                        currency=new_currency,
+                        subtotal=new_subtotal,
+                        tax=new_tax,
+                        total=new_total,
+                        updated_line_items=updated_line_items
+                    )
 
-                    status = api_client.approve_document(doc_id, corrected_payload)
-                    if status == 200:
-                        st.toast(f"✅ Approved '{filename}' and updated database!")
-                        st.rerun()
+                    if not is_valid:
+                        st.error(f"❌ Cannot approve submission: {err_msg}")
                     else:
-                        st.error(f"Failed to approve document (Status Code: {status}).")
+                        # Construct updated JSON payload
+                        corrected_payload = {
+                            "vendor": new_vendor,
+                            "vendor_name": new_vendor,
+                            "invoice_number": new_inv_num,
+                            "date": new_date,
+                            "currency": new_currency,
+                            "subtotal": new_subtotal,
+                            "tax": new_tax,
+                            "tax_amount": new_tax,
+                            "total": new_total,
+                            "total_amount": new_total,
+                            "line_items": updated_line_items,
+                            "overall_confidence": extracted_data.get("overall_confidence", 1.0)
+                        }
+
+                        status = api_client.approve_document(doc_id, corrected_payload)
+                        if status == 200:
+                            st.toast(f"✅ Approved '{filename}' and updated database!")
+                            st.rerun()
+                        else:
+                            st.error(f"Failed to approve document (Status Code: {status}).")
