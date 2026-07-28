@@ -1,0 +1,32 @@
+name: LedgerLens CI/CD Pipeline
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build-and-verify:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Verify Python Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Dry-Run Backend Docker Build
+        run: docker build -t ledgerlens-backend -f Dockerfile.backend .
+
+      - name: Dry-Run Frontend Docker Build
+        run: docker build -t ledgerlens-frontend -f Dockerfile.frontend .
