@@ -6,6 +6,21 @@ from frontend.services import api_client
 from frontend.components.dialogs import view_photo_dialog, view_extracted_json_dialog, view_reviewed_json_dialog
 
 def render_database_view():
+    st.markdown("""
+        <style>
+        /* Uniform font size and centering for table action icons */
+        div[data-testid="stColumn"] button {
+            font-size: 1.25rem !important;
+            line-height: 1.2 !important;
+            padding: 0.25rem 0 !important;
+            min-height: 38px !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+        }
+        </style>
+    """, unsafe_allow_html=True)
+
     st.markdown("### 🗄️ Document Database")
     st.markdown("Review and manage all extracted documents.")
     
@@ -151,7 +166,7 @@ def render_database_view():
                 btn_cols = st.columns(num_cols)
                 
                 with btn_cols[0]:
-                    if st.button("🤖", key=f"ext_{row['id']}", help="View Extracted JSON", use_container_width=True):
+                    if st.button("📄", key=f"ext_{row['id']}", help="View Extracted JSON", use_container_width=True):
                         view_extracted_json_dialog(row.get('extracted_json', '{}'))
                 with btn_cols[1]:
                     if st.button("📝", key=f"rev_{row['id']}", help="View Reviewed JSON", use_container_width=True):
