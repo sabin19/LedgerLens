@@ -164,11 +164,11 @@ sequenceDiagram
         AI-->>API: Flagged = False
         API->>AI: Extract Data (gpt-4o-mini + InvoiceSchema)
         AI-->>API: Parsed Schema & Confidence Scores
-        API->>API: Evaluate Confidence Threshold (0.90)
+        API->>API: Evaluate Confidence Threshold (0.75)
         
-        alt Confidence >= 0.90
+        alt Confidence >= 0.75
             API->>API: Set Status = "auto_approved"
-        else Confidence < 0.90
+        else Confidence < 0.75
             API->>API: Set Status = "pending_review"
         end
         
