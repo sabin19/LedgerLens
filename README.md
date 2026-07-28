@@ -393,6 +393,7 @@ Metrics exposed at `/metrics`:
 Team Lead | Software Engineer
 Created in fulfillment of the Capstone Project requirements for the IIT Roorkee New Age Software Engineering Program.
 
+---
 
 # Usage and Licensing
 

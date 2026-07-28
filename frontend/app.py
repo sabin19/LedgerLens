@@ -9,7 +9,7 @@ from frontend.views.review_queue import render_review_queue
 from frontend.views.database_view import render_database_view
 
 # Configure the global page settings
-st.set_page_config(layout="wide", page_title="Invoice Lense")
+st.set_page_config(layout="wide", page_title="Invoice Lens")
 
 # Initialize global session state variables
 if "doc_image" not in st.session_state:
@@ -25,7 +25,7 @@ if "authenticated" not in st.session_state:
 required_token = get_required_access_token()
 
 if required_token and not st.session_state.authenticated:
-    st.title("🔐 Invoice Lense - Access Restricted")
+    st.title("🔐 Invoice Lens - Access Restricted")
     st.subheader("Authentication Required")
     st.info("Please enter the access token configured in environment variables to unlock the application.")
     

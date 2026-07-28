@@ -76,7 +76,7 @@ def render_ingestion():
             if st.session_state.doc_image is not None:
                 doc = st.session_state.doc_image
                 threshold_pct = st.slider(
-                    "🎯 Review Threshold (%)",
+                    "🎯 Review Confidence Threshold (%)",
                     min_value=0,
                     max_value=100,
                     value=75,
