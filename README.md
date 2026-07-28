@@ -63,7 +63,8 @@ Automatically extracts structured financial fields with confidence scores using 
 ---
 
 ### ✍️ Manual Review (Human-in-the-Loop)
-- **Pending Queue Routing**: Low-confidence extractions (`< 75%`) are automatically flagged for review.
+- **User-Configurable Review Threshold**: Interactive confidence slider (0% to 100%, default 75%) allows users to dynamically set custom confidence tolerance before processing documents.
+- **Pending Queue Routing**: Extractions with overall or line-item confidence below the configured threshold are automatically flagged for review.
 - **Visual Verification**: View original watermarked receipt side-by-side with extracted values.
 - **Line-Item & Metadata Editing**: Edit vendor, amounts, dates, and line items directly in the UI.
 - **Strict Input Validation**: Validates all user inputs on metadata and line items to block `null`, `None`, `NaN`, or empty string submissions.
@@ -153,8 +154,8 @@ sequenceDiagram
     participant AI as OpenAI API
     participant DB as SQLite DB
 
-    User->>UI: Upload Receipt/Invoice Image (JPG/PNG)
-    UI->>API: POST /ingest (File Payload)
+    User->>UI: Select Review Threshold (0-100%, default 75%) & Upload Image (JPG/PNG)
+    UI->>API: POST /ingest (File Payload + review_threshold)
     API->>API: Compress Image & Add Watermark (UUID + Timestamp)
     API->>AI: Moderation Check (omni-moderation-latest)
     
@@ -165,11 +166,11 @@ sequenceDiagram
         AI-->>API: Flagged = False
         API->>AI: Extract Data (gpt-4o-mini + InvoiceSchema)
         AI-->>API: Parsed Schema & Confidence Scores
-        API->>API: Evaluate Confidence Threshold (0.75)
+        API->>API: Evaluate Dynamic Confidence Threshold (review_threshold)
         
-        alt Confidence >= 0.75
+        alt Confidence >= review_threshold
             API->>API: Set Status = "auto_approved"
-        else Confidence < 0.75
+        else Confidence < review_threshold
             API->>API: Set Status = "pending_review"
         end
         
@@ -359,7 +360,7 @@ Run both Backend and Frontend services in isolated Docker containers:
 
 | Method | Endpoint | Description |
 | :--- | :--- | :--- |
-| `POST` | `/ingest` | Uploads invoice image, runs moderation & vision extraction, redacts PII, saves record |
+| `POST` | `/ingest` | Uploads invoice image with optional `review_threshold` parameter (0-100% or 0.0-1.0), runs moderation & vision extraction, redacts PII, saves record |
 | `GET` | `/review` | Retrieves all documents currently pending manual review |
 | `POST` | `/approve` | Approves a document with updated/corrected JSON payload |
 | `GET` | `/documents` | Retrieves complete list of stored document records |
