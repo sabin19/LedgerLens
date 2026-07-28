@@ -180,12 +180,12 @@ def render_database_view():
     st.markdown("<br>", unsafe_allow_html=True)
     prev_col, text_col, next_col = st.columns([1, 2, 1])
     with prev_col:
-        if st.button("⬅️ Previous", disabled=(st.session_state.db_page == 1), use_container_width=True):
+        if st.button("⬅️ Previous", key="db_prev_page_btn", disabled=(st.session_state.db_page == 1), use_container_width=True):
             st.session_state.db_page -= 1
             st.rerun()
     with text_col:
         st.markdown(f"<div style='text-align: center;'>Page {st.session_state.db_page} of {total_pages}</div>", unsafe_allow_html=True)
     with next_col:
-        if st.button("Next ➡️", disabled=(st.session_state.db_page == total_pages), use_container_width=True):
+        if st.button("Next ➡️", key="db_next_page_btn", disabled=(st.session_state.db_page == total_pages), use_container_width=True):
             st.session_state.db_page += 1
             st.rerun()

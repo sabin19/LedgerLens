@@ -10,7 +10,7 @@ def render_dashboard():
         st.markdown("### 📈 Executive Dashboard")
         st.markdown("Overview of processed documents, total spend, and automation performance.")
     with header_col2:
-        if st.button("🚀 Process Document", type="primary", use_container_width=True):
+        if st.button("🚀 Process Document", key="btn_process_doc_dashboard", type="primary", use_container_width=True):
             st.session_state.switch_to_upload = True
             st.rerun()
     
@@ -23,7 +23,7 @@ def render_dashboard():
 
     if dashboard_df.empty:
         st.info("Upload your first document to populate the dashboard!")
-        if st.button("🚀 Process Your First Document", type="primary"):
+        if st.button("🚀 Process Your First Document", key="btn_process_first_doc_dashboard", type="primary"):
             st.session_state.switch_to_upload = True
             st.rerun()
         return

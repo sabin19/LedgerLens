@@ -56,10 +56,10 @@ def render_ingestion():
                 
                 btn_col1, btn_col2 = st.columns(2)
                 with btn_col1:
-                    if st.button("🔍 View Original", use_container_width=True):
+                    if st.button("🔍 View Original", key="btn_view_original_ingest", use_container_width=True):
                         view_original_image_dialog(image_bytes)
                 with btn_col2:
-                    if st.button("❌ Remove Image", type="secondary", use_container_width=True):
+                    if st.button("❌ Remove Image", key="btn_remove_image_ingest", type="secondary", use_container_width=True):
                         st.session_state.doc_image = None
                         st.rerun()
 
@@ -68,7 +68,7 @@ def render_ingestion():
         with st.container(height=600, border=True):
             if st.session_state.doc_image is not None:
                 doc = st.session_state.doc_image
-                process_btn = st.button("🚀 Process Document", type="primary", use_container_width=True)
+                process_btn = st.button("🚀 Process Document", key="btn_process_document_ingest", type="primary", use_container_width=True)
                 st.divider()
                 
                 if process_btn:
