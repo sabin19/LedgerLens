@@ -1,14 +1,20 @@
 import json
 from backend.database.config import get_db_connection
 
-def create_document(doc_id: str, filename: str, status: str, safe_json: str, overall_conf: float):
+def create_document(doc_id: str, filename: str, status: str, safe_json: str, overall_conf: float, perceptual_hash: str = None):
     conn = get_db_connection()
     conn.execute(
-        "INSERT INTO documents (id, filename, status, extracted_json, overall_confidence) VALUES (?, ?, ?, ?, ?)",
-        (doc_id, filename, status, safe_json, overall_conf)
+        "INSERT INTO documents (id, filename, status, extracted_json, overall_confidence, perceptual_hash) VALUES (?, ?, ?, ?, ?, ?)",
+        (doc_id, filename, status, safe_json, overall_conf, perceptual_hash)
     )
     conn.commit()
     conn.close()
+
+def get_all_perceptual_hashes():
+    conn = get_db_connection()
+    rows = conn.execute("SELECT id, filename, perceptual_hash FROM documents WHERE perceptual_hash IS NOT NULL").fetchall()
+    conn.close()
+    return [dict(row) for row in rows]
 
 def get_pending_reviews():
     conn = get_db_connection()

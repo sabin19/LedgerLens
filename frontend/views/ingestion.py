@@ -107,6 +107,13 @@ def render_ingestion():
                             if st.button("➡️ Go to Database View", key=f"btn_nav_db_{doc_id}", type="primary", use_container_width=True):
                                 st.session_state.switch_to_tab = 3
                                 st.rerun()
+                        elif status == "duplicate":
+                            dup_of = result.get("duplicate_of", "N/A")
+                            dist = result.get("hamming_distance", 0)
+                            st.error(f"⚠️ Duplicate Document Detected! Matching Document ID: {dup_of[:8]}... (Distance: {dist})")
+                            if st.button("➡️ View in Database", key=f"btn_nav_db_dup_{doc_id}", type="primary", use_container_width=True):
+                                st.session_state.switch_to_tab = 3
+                                st.rerun()
                         else:
                             st.warning(f"⚠️ Flagged for Review (Status: {status})")
                             if st.button("✍️ Go to Review Queue", key=f"btn_nav_rev_{doc_id}", type="primary", use_container_width=True):

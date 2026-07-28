@@ -11,6 +11,7 @@ from prometheus_client import Counter, Histogram
 # Import our new isolated services
 from backend.services.vision import moderate_image, extract_invoice_data
 from backend.services.pii_redaction import redact_pii
+from backend.services.dedupe import compute_perceptual_hash, check_duplicate
 from backend.database import crud
 
 router = APIRouter()
@@ -34,6 +35,11 @@ async def ingest_document(
         img = Image.open(BytesIO(image_bytes))
     except Exception:
         raise HTTPException(status_code=400, detail="Invalid image file format.")
+
+    # 1. Compute perceptual hash and check for duplicate invoice images
+    perceptual_hash = compute_perceptual_hash(img)
+    existing_hashes = crud.get_all_perceptual_hashes()
+    is_duplicate_doc, matching_doc_id, dist = check_duplicate(perceptual_hash, existing_hashes, threshold=5)
 
     img.thumbnail((1024, 1024))
     buffered = BytesIO()
@@ -78,39 +84,49 @@ async def ingest_document(
     if effective_threshold < 0.0 or effective_threshold > 1.0:
         effective_threshold = DEFAULT_REVIEW_THRESHOLD
 
-    # 1. Safely parse overall confidence
+    # Safely parse overall confidence score
     raw_conf = extracted_data.get('overall_confidence')
     overall_conf = float(raw_conf) if raw_conf is not None else 1.0
-        
-    status = "auto_approved"
-        
-    if overall_conf < effective_threshold:
-        status = "pending_review"
+
+    # Determine status (duplicate takes precedence if perceptual hash matched)
+    if is_duplicate_doc:
+        status = "duplicate"
     else:
-        # 2. Use a Type Guard so Pylance knows this is definitively a list
-        raw_items = extracted_data.get('line_items')
-        line_items = raw_items if isinstance(raw_items, list) else []
+        status = "auto_approved"
             
-        # 3. Use a standard loop with another Type Guard for the dictionaries
-        for item in line_items:
-            if isinstance(item, dict):
-                raw_item_conf = item.get('confidence')
-                item_conf = float(raw_item_conf) if raw_item_conf is not None else 1.0
-                    
-                if item_conf < effective_threshold:
-                    status = "pending_review"
-                    break
+        if overall_conf < effective_threshold:
+            status = "pending_review"
+        else:
+            raw_items = extracted_data.get('line_items')
+            line_items = raw_items if isinstance(raw_items, list) else []
+                
+            for item in line_items:
+                if isinstance(item, dict):
+                    raw_item_conf = item.get('confidence')
+                    item_conf = float(raw_item_conf) if raw_item_conf is not None else 1.0
+                        
+                    if item_conf < effective_threshold:
+                        status = "pending_review"
+                        break
                 
     safe_json = redact_pii(extracted_json_str)
-    # Provide a safe fallback if the HTTP request didn't include a filename
     safe_filename = file.filename or "unknown_document"
-    crud.create_document(doc_id, safe_filename, status, safe_json, overall_conf)
+    crud.create_document(doc_id, safe_filename, status, safe_json, overall_conf, perceptual_hash=perceptual_hash)
     
     DOCS_PROCESSED.inc()
     if status == "auto_approved":
         AUTO_APPROVALS.inc()
     
-    return {"doc_id": doc_id, "status": status, "data": extracted_data}
+    response_payload = {
+        "doc_id": doc_id,
+        "status": status,
+        "data": extracted_data
+    }
+    if is_duplicate_doc:
+        response_payload["duplicate_of"] = matching_doc_id
+        response_payload["hamming_distance"] = dist
+
+    return response_payload
 
 import math
 

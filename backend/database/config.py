@@ -20,7 +20,9 @@ def init_db():
             extracted_json TEXT,
             reviewed_json TEXT,
             overall_confidence REAL,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            perceptual_hash TEXT
         )
     ''')
     
@@ -28,38 +30,14 @@ def init_db():
     cursor.execute("PRAGMA table_info(documents)")
     columns = [col[1] for col in cursor.fetchall()]
     
-    # 3. Add updated_at if it's missing (Using the SQLite table-recreation workaround)
+    # 3. Add updated_at if missing
     if 'updated_at' not in columns:
-        print("Migration: Adding 'updated_at' column to 'documents' table via recreation...")
-        
-        # A. Create a new table with the updated schema
-        cursor.execute('''
-            CREATE TABLE documents_new (
-                id TEXT PRIMARY KEY,
-                filename TEXT NOT NULL,
-                status TEXT NOT NULL,
-                extracted_json TEXT,
-                reviewed_json TEXT,
-                overall_confidence REAL,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            )
-        ''')
-        
-        # B. Copy data from the old table to the new one 
-        # (updated_at will automatically take CURRENT_TIMESTAMP for the copied rows)
-        cursor.execute('''
-            INSERT INTO documents_new 
-            (id, filename, status, extracted_json, reviewed_json, overall_confidence, created_at)
-            SELECT id, filename, status, extracted_json, reviewed_json, overall_confidence, created_at 
-            FROM documents
-        ''')
-        
-        # C. Drop the old table
-        cursor.execute("DROP TABLE documents")
-        
-        # D. Rename the new table to the original name
-        cursor.execute("ALTER TABLE documents_new RENAME TO documents")
+        cursor.execute("ALTER TABLE documents ADD COLUMN updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
+
+    # 4. Add perceptual_hash if missing
+    if 'perceptual_hash' not in columns:
+        print("Migration: Adding 'perceptual_hash' column to 'documents' table...")
+        cursor.execute("ALTER TABLE documents ADD COLUMN perceptual_hash TEXT")
         
     conn.commit()
     conn.close()
