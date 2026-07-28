@@ -63,9 +63,11 @@ Automatically extracts structured financial fields with confidence scores using 
 ---
 
 ### ✍️ Manual Review (Human-in-the-Loop)
-- **Pending Queue Routing**: Low-confidence extractions (`< 90%`) are automatically flagged for review.
+- **Pending Queue Routing**: Low-confidence extractions (`< 95%`) are automatically flagged for review.
 - **Visual Verification**: View original watermarked receipt side-by-side with extracted values.
 - **Line-Item & Metadata Editing**: Edit vendor, amounts, dates, and line items directly in the UI.
+- **Strict Input Validation**: Validates all user inputs on metadata and line items to block `null`, `None`, `NaN`, or empty string submissions.
+- **Line Item Row Controls**: Add new line items or explicitly remove specific/accidental rows using dedicated deletion controls.
 - **Status Approval**: Approve and save corrected records to update the document state to `auto_approved`.
 
 ---
@@ -80,6 +82,7 @@ Automatically extracts structured financial fields with confidence scores using 
 ### 🗄️ Document Management
 - **Searchable Historical Ledger**: Browse all processed invoices.
 - **Filtering & Search**: Search by vendor name or filename, and filter by status (`auto_approved`, `pending_review`).
+- **Dynamic JSON Views**: Dedicated modal views for Extracted JSON (`🤖 Extracted JSON Data`) and Human-Reviewed JSON (`🧑‍💻 Reviewed JSON Data`).
 - **Pagination & Sorting**: Paginated data grid with creation timestamp sorting.
 
 ---
@@ -215,6 +218,8 @@ LedgerLens/
 │   └── app.py                  # Streamlit entry point
 ├── tests/
 │   ├── test_api.py             # End-to-end API ingestion test
+│   ├── test_dialog_titles.py   # Unit tests for JSON view dialog titles
+│   ├── test_review_validation.py # Unit tests for human review input validation
 │   ├── test_schema_contracts.py# Pydantic schema contract tests
 │   └── pytest.ini              # Pytest configuration
 ├── Dockerfile.backend          # Production Dockerfile for backend service
