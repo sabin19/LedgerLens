@@ -1,10 +1,8 @@
 name: LedgerLens CI/CD Pipeline
 
 on:
-  push:
-    branches: [ "main" ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ "release" ]
 
 jobs:
   build-and-verify:
