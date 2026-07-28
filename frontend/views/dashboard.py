@@ -46,7 +46,8 @@ def render_dashboard():
     confidences = []
     
     for _, row in dashboard_df.iterrows():
-        json_str = row.get('extracted_json', '{}')
+        reviewed_raw = row.get('reviewed_json')
+        json_str = reviewed_raw if (pd.notna(reviewed_raw) and str(reviewed_raw).strip() != '') else row.get('extracted_json', '{}')
         try:
             data = json.loads(json_str) if isinstance(json_str, str) else json_str
             if not isinstance(data, dict):

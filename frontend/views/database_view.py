@@ -27,7 +27,8 @@ def render_database_view():
 
     # 2. Pre-process JSON into DataFrame columns for Sorting/Searching
     def parse_json_data(row):
-        json_str = row.get('extracted_json', '{}')
+        reviewed_raw = row.get('reviewed_json')
+        json_str = reviewed_raw if (pd.notna(reviewed_raw) and str(reviewed_raw).strip() != '') else row.get('extracted_json', '{}')
         parsed = {}
         if not pd.isna(json_str) and json_str:
             try:
