@@ -19,7 +19,7 @@ def get_pending_reviews():
 def update_document_status(doc_id: str, corrected_data: dict):
     conn = get_db_connection()
     conn.execute(
-        "UPDATE documents SET status = 'auto_approved', reviewed_json = ? WHERE id = ?",
+        "UPDATE documents SET status = 'auto_approved', reviewed_json = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?",
         (json.dumps(corrected_data), doc_id)
     )
     conn.commit()

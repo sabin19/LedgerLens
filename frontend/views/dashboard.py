@@ -122,7 +122,7 @@ def render_dashboard():
             st.metric(label="Avg AI Confidence", value=conf_display)
     with m7:
         with st.container(border=True):
-            st.metric(label="Total Spend Processed", value=f"${total_spend:,.2f}")
+            st.metric(label="Total Spend Processed", value=f"{total_spend:,.2f}")
     with m8:
         with st.container(border=True):
             st.metric(label="STP / Approval Rate", value=f"{approval_rate:.1f}%")
