@@ -5,8 +5,14 @@ from datetime import datetime
 from frontend.services import api_client
 
 def render_dashboard():
-    st.markdown("### 📈 Executive Dashboard")
-    st.markdown("Overview of processed documents, total spend, and automation performance.")
+    header_col1, header_col2 = st.columns([3, 1])
+    with header_col1:
+        st.markdown("### 📈 Executive Dashboard")
+        st.markdown("Overview of processed documents, total spend, and automation performance.")
+    with header_col2:
+        if st.button("🚀 Process Document", type="primary", use_container_width=True):
+            st.session_state.active_tab = "Upload Document"
+            st.rerun()
     
     raw_data = api_client.fetch_documents()
     if raw_data is None:
@@ -17,6 +23,9 @@ def render_dashboard():
 
     if dashboard_df.empty:
         st.info("Upload your first document to populate the dashboard!")
+        if st.button("🚀 Process Your First Document", type="primary"):
+            st.session_state.active_tab = "Upload Document"
+            st.rerun()
         return
 
     # --- Data Safeties & Assumptions ---

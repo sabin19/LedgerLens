@@ -1,6 +1,6 @@
-# 🔍 LedgerLens — AI-Powered Invoice & Document Intelligence Platform
+# 🔍 Invoice Lense — AI-Powered Invoice & Document Intelligence Platform
 
-[![Live Application](https://img.shields.io/badge/Live%20Demo-LedgerLens%20Streamlit-blue?style=for-the-badge&logo=render)](https://ledgerlens-frontend-w7d6.onrender.com/)
+[![Live Application](https://img.shields.io/badge/Live%20Demo-Invoice%20Lense%20Streamlit-blue?style=for-the-badge&logo=render)](https://ledgerlens-frontend-w7d6.onrender.com/)
 [![Python](https://img.shields.io/badge/Python-3.11-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://python.org)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.100+-009688?style=for-the-badge&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com)
 [![Streamlit](https://img.shields.io/badge/Streamlit-1.30+-FF4B4B?style=for-the-badge&logo=streamlit&logoColor=white)](https://streamlit.io)
@@ -10,9 +10,9 @@
 
 ---
 
-**LedgerLens** is an enterprise-grade AI-powered invoice processing and document intelligence application that automates invoice data extraction, manual review queue management, sensitive data redaction, document history tracking, and financial analytics.
+**Invoice Lense** is an enterprise-grade AI-powered invoice processing and document intelligence application that automates invoice data extraction, manual review queue management, sensitive data redaction, document history tracking, and financial analytics.
 
-Built using **FastAPI**, **Streamlit**, **SQLite**, and **OpenAI GPT Vision Engine**, LedgerLens transforms raw, unstructured invoice and receipt images into structured, auditable financial data.
+Built using **FastAPI**, **Streamlit**, **SQLite**, and **OpenAI GPT Vision Engine**, Invoice Lense transforms raw, unstructured invoice and receipt images into structured, auditable financial data.
 
 ---
 

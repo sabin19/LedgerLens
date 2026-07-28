@@ -91,7 +91,7 @@ def render_ingestion():
                             st.error(f"Error {status_code}: {result}")
                 else:
                     st.markdown("### 🤖 System Ready")
-                    st.markdown("The LedgerLens vision engine is standing by...")
+                    st.markdown("The Invoice Lense vision engine is standing by...")
                     st.info("👆 Click **Process Document** to begin extraction.")
             else:
                 # Restored the empty state spacing

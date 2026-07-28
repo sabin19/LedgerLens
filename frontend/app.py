@@ -7,28 +7,42 @@ from frontend.views.review_queue import render_review_queue
 from frontend.views.database_view import render_database_view
 
 # Configure the global page settings
-st.set_page_config(layout="wide", page_title="LedgerLens")
+st.set_page_config(layout="wide", page_title="Invoice Lense")
 
 # Initialize global session state variables
 if "doc_image" not in st.session_state:
     st.session_state.doc_image = None
 if "db_page" not in st.session_state:
     st.session_state.db_page = 1
+if "active_tab" not in st.session_state:
+    st.session_state.active_tab = "Dashboard"
 
 # Render main title
-st.title("LedgerLens Document Intelligence")
+st.title("Invoice Lense Document Intelligence")
 
 # Setup Navigation
-tab1, tab2, tab3, tab4 = st.tabs(["Dashboard", "Upload Document", "Review Queue", "Database View"])
+tabs = ["Dashboard", "Upload Document", "Review Queue", "Database View"]
 
-with tab1:
+# Keep active_tab in sync
+current_index = tabs.index(st.session_state.active_tab) if st.session_state.active_tab in tabs else 0
+
+selected_tab = st.radio(
+    "Navigation",
+    tabs,
+    index=current_index,
+    horizontal=True,
+    label_visibility="collapsed",
+    key="nav_radio"
+)
+
+if selected_tab != st.session_state.active_tab:
+    st.session_state.active_tab = selected_tab
+
+if st.session_state.active_tab == "Dashboard":
     render_dashboard()
-
-with tab2:
+elif st.session_state.active_tab == "Upload Document":
     render_ingestion()
-
-with tab3:
+elif st.session_state.active_tab == "Review Queue":
     render_review_queue()
-
-with tab4:
+elif st.session_state.active_tab == "Database View":
     render_database_view()
