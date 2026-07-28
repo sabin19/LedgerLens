@@ -25,7 +25,7 @@ if "authenticated" not in st.session_state:
 required_token = get_required_access_token()
 
 if required_token and not st.session_state.authenticated:
-    st.title("🔐 Invoice Lense - Access Restricted")
+    st.title("🔐 Invoice Lens - Access Restricted")
     st.subheader("Authentication Required")
     st.info("Please enter the access token configured in environment variables to unlock the application.")
     
