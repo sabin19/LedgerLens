@@ -41,14 +41,15 @@ if required_token and not st.session_state.authenticated:
                 st.error("❌ Invalid Access Token. Access Denied.")
     st.stop()
 
-# Render main title (ONLY ONCE AUTHENTICATED)
-st.title("Invoice Lense Document Intelligence")
+# Header layout with Title on the left and Logout button on the top right side
+col_title, col_logout = st.columns([5, 1], vertical_alignment="center")
 
-# Sidebar Logout Option (when authenticated)
-if required_token and st.session_state.authenticated:
-    with st.sidebar:
-        st.caption("🔒 Session Authenticated")
-        if st.button("Lock / Logout"):
+with col_title:
+    st.title("Invoice Lense Document Intelligence")
+
+with col_logout:
+    if required_token and st.session_state.authenticated:
+        if st.button("🔒 Logout", key="top_logout_btn", type="secondary", use_container_width=True):
             st.session_state.authenticated = False
             st.rerun()
 
