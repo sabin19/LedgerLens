@@ -21,29 +21,34 @@ if "switch_to_upload" not in st.session_state:
 if "authenticated" not in st.session_state:
     st.session_state.authenticated = False
 
-# Render main title
-st.title("Invoice Lense Document Intelligence")
-
-# Check Token Authentication Gate
+# Check Token Authentication Gate BEFORE rendering main dashboard
 required_token = get_required_access_token()
+
 if required_token and not st.session_state.authenticated:
-    st.warning("🔒 Access Restricted: Please enter your access token to continue.")
+    st.title("🔐 Invoice Lense - Access Restricted")
+    st.subheader("Authentication Required")
+    st.info("Please enter the access token configured in environment variables to unlock the application.")
+    
     with st.form("token_auth_form", clear_on_submit=False):
-        user_token = st.text_input("Access Token", type="password", help="Enter the secret access token configured in environment variables.")
-        submit = st.form_submit_button("Access Dashboard")
+        user_token = st.text_input("Access Token", type="password", help="Enter the secret access token (ACCESS_TOKEN).")
+        submit = st.form_submit_button("🔑 Access Dashboard")
         if submit:
             if verify_token(user_token):
                 st.session_state.authenticated = True
-                st.success("Access Granted!")
+                st.success("Access Granted! Loading application...")
                 st.rerun()
             else:
-                st.error("Invalid Access Token. Access Denied.")
+                st.error("❌ Invalid Access Token. Access Denied.")
     st.stop()
+
+# Render main title (ONLY ONCE AUTHENTICATED)
+st.title("Invoice Lense Document Intelligence")
 
 # Sidebar Logout Option (when authenticated)
 if required_token and st.session_state.authenticated:
     with st.sidebar:
-        if st.button("🔒 Lock / Logout"):
+        st.caption("🔒 Session Authenticated")
+        if st.button("Lock / Logout"):
             st.session_state.authenticated = False
             st.rerun()
 
