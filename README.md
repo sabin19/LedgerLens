@@ -349,6 +349,7 @@ Run both Backend and Frontend services in isolated Docker containers:
 4. Set **Dockerfile Path**: `Dockerfile.frontend`.
 5. Add Environment Variables:
    - `API_BASE_URL`: `<Your Backend Service URL from Step 1>`
+   - `ACCESS_TOKEN`: `<Your secret access token (e.g. 1ac3111181d1806767d5f1bfd07b5142d48911d48b3c6b4d7bf5bd98930a35a0)>`
    - `PYTHONPATH`: `/app`
 6. Click **Create Web Service**. Access the live application URL upon successful deployment.
 
@@ -370,10 +371,10 @@ Run both Backend and Frontend services in isolated Docker containers:
 ## 🧪 Observability & Testing
 
 ### Running Pytest Suite
-Run schema contract tests and API integration tests:
+Run schema contract tests, auth unit tests, and API integration tests:
 
 ```bash
-pytest tests/
+PYTHONPATH=. pytest tests/
 ```
 
 ### Prometheus Metrics Monitoring
