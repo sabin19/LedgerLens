@@ -4,7 +4,7 @@ import datetime
 import os
 import time
 from io import BytesIO
-from fastapi import APIRouter, UploadFile, File, HTTPException
+from fastapi import APIRouter, UploadFile, File, Form, HTTPException
 from PIL import Image, ImageDraw
 from prometheus_client import Counter, Histogram
 
@@ -22,10 +22,13 @@ TOKEN_COST_USD = Counter("token_cost_usd", "Estimated token cost in USD")
 AUTO_APPROVALS = Counter("auto_approvals_total", "Total documents automatically approved")
 DOCS_PROCESSED = Counter("throughput_docs_total", "Total documents processed")
 ESTIMATED_COST_PER_TOKEN = 0.0000003
-REVIEW_THRESHOLD = 0.75
+DEFAULT_REVIEW_THRESHOLD = 0.75
 
 @router.post("/ingest")
-async def ingest_document(file: UploadFile = File(...)):
+async def ingest_document(
+    file: UploadFile = File(...),
+    review_threshold: float = Form(DEFAULT_REVIEW_THRESHOLD)
+):
     image_bytes = await file.read()
     try:
         img = Image.open(BytesIO(image_bytes))
@@ -68,13 +71,20 @@ async def ingest_document(file: UploadFile = File(...)):
     extracted_data = parsed_schema.model_dump()
     extracted_json_str = parsed_schema.model_dump_json()
 
+    # Normalize review_threshold (handle 0..100 percentage or 0.0..1.0 float)
+    effective_threshold = float(review_threshold) if review_threshold is not None else DEFAULT_REVIEW_THRESHOLD
+    if effective_threshold > 1.0:
+        effective_threshold = effective_threshold / 100.0
+    if effective_threshold < 0.0 or effective_threshold > 1.0:
+        effective_threshold = DEFAULT_REVIEW_THRESHOLD
+
     # 1. Safely parse overall confidence
     raw_conf = extracted_data.get('overall_confidence')
     overall_conf = float(raw_conf) if raw_conf is not None else 1.0
         
     status = "auto_approved"
         
-    if overall_conf < REVIEW_THRESHOLD:
+    if overall_conf < effective_threshold:
         status = "pending_review"
     else:
         # 2. Use a Type Guard so Pylance knows this is definitively a list
@@ -87,7 +97,7 @@ async def ingest_document(file: UploadFile = File(...)):
                 raw_item_conf = item.get('confidence')
                 item_conf = float(raw_item_conf) if raw_item_conf is not None else 1.0
                     
-                if item_conf < REVIEW_THRESHOLD:
+                if item_conf < effective_threshold:
                     status = "pending_review"
                     break
                 

@@ -21,9 +21,10 @@ def fetch_review_queue():
     except requests.exceptions.ConnectionError:
         return None
 
-def upload_document(files):
+def upload_document(files, review_threshold: float = 0.75):
     try:
-        response = requests.post(f"{API_BASE_URL}/ingest", files=files)
+        data = {"review_threshold": review_threshold}
+        response = requests.post(f"{API_BASE_URL}/ingest", files=files, data=data)
         return response.status_code, response.json() if response.status_code == 200 else response.text
     except requests.exceptions.ConnectionError:
         return 503, "Connection Error"

@@ -68,13 +68,21 @@ def render_ingestion():
         with st.container(height=600, border=True):
             if st.session_state.doc_image is not None:
                 doc = st.session_state.doc_image
+                threshold_pct = st.slider(
+                    "🎯 Review Threshold (%)",
+                    min_value=0,
+                    max_value=100,
+                    value=75,
+                    step=1,
+                    help="Extractions with overall or line-item confidence below this percentage (0-100%) will be flagged for manual review."
+                )
                 process_btn = st.button("🚀 Process Document", key="btn_process_document_ingest", type="primary", use_container_width=True)
                 st.divider()
                 
                 if process_btn:
                     with st.spinner("Analyzing document with vision model..."):
                         files = {"file": (doc["name"], doc["bytes"], doc["type"])}
-                        status_code, result = api_client.upload_document(files)
+                        status_code, result = api_client.upload_document(files, review_threshold=threshold_pct / 100.0)
                         
                         if status_code == 200 and isinstance(result, dict):
                             status = result.get('status', 'unknown')
