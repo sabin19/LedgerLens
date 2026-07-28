@@ -373,3 +373,16 @@ Metrics exposed at `/metrics`:
 - `token_cost_usd`: Total cumulative token cost metric.
 - `throughput_docs_total`: Total count of processed documents.
 - `auto_approvals_total`: Total count of automatically approved documents.
+
+# Author
+
+**SABINMON KS**
+
+Team Lead | Software Engineer
+
+Created in fulfillment of the Capstone Project requirements for the IIT Roorkee New Age Software Engineering Program.
+---
+
+# Usage and Licensing
+
+This software is intended solely for educational purposes as a component of the IIT Roorkee academic curriculum.
