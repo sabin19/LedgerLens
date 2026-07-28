@@ -239,12 +239,6 @@ Create a `.env` file in the root directory:
 # Required: OpenAI API Key for Vision & Moderation
 OPENAI_API_KEY=your_openai_api_key_here
 
-# Optional: Vision Model (Default: gpt-4o-mini)
-OPENAI_VISION_MODEL=gpt-4o-mini
-
-# Optional: OpenAI API Max Retries (Default: 4)
-OPENAI_MAX_RETRIES=4
-
 # Streamlit API Connection URL (Default for local/docker)
 API_BASE_URL=http://localhost:8000
 
