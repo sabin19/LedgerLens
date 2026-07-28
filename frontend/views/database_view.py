@@ -3,7 +3,7 @@ import pandas as pd
 import json
 import math
 from frontend.services import api_client
-from frontend.components.dialogs import view_photo_dialog, view_json_dialog
+from frontend.components.dialogs import view_photo_dialog, view_extracted_json_dialog, view_reviewed_json_dialog
 
 def render_database_view():
     st.markdown("### 🗄️ Document Database")
@@ -27,7 +27,8 @@ def render_database_view():
 
     # 2. Pre-process JSON into DataFrame columns for Sorting/Searching
     def parse_json_data(row):
-        json_str = row.get('extracted_json', '{}')
+        reviewed_raw = row.get('reviewed_json')
+        json_str = reviewed_raw if (pd.notna(reviewed_raw) and str(reviewed_raw).strip() != '') else row.get('extracted_json', '{}')
         parsed = {}
         if not pd.isna(json_str) and json_str:
             try:
@@ -141,22 +142,37 @@ def render_database_view():
             conf_display = f"{float(conf_val)*100:.0f}%" if pd.notna(conf_val) and conf_val is not None else "N/A"
             r_cols[5].markdown(f"{conf_display}")
             
-            # Actions (3 Buttons)
+            # Actions
+            conf_float = float(conf_val) if pd.notna(conf_val) and conf_val is not None else 1.0
+            show_move_review = conf_float < 0.95 and status != 'pending_review'
+
             with r_cols[6]:
-                btn_col1, btn_col2, btn_col3 = st.columns(3)
-                with btn_col1:
+                num_cols = 4 if show_move_review else 3
+                btn_cols = st.columns(num_cols)
+                
+                with btn_cols[0]:
                     if st.button("🤖", key=f"ext_{row['id']}", help="View Extracted JSON"):
-                        view_json_dialog(row.get('extracted_json', '{}'))
-                with btn_col2:
+                        view_extracted_json_dialog(row.get('extracted_json', '{}'))
+                with btn_cols[1]:
                     if st.button("🧑‍💻", key=f"rev_{row['id']}", help="View Reviewed JSON"):
                         reviewed_data = row.get('reviewed_json', '')
                         if pd.notna(reviewed_data) and str(reviewed_data).strip() != "":
-                            view_json_dialog(reviewed_data)
+                            view_reviewed_json_dialog(reviewed_data)
                         else:
                             st.toast("No reviewed JSON available for this document.")
-                with btn_col3:
+                with btn_cols[2]:
                     if st.button("🖼️", key=f"img_{row['id']}", help="View Original Image"):
                         view_photo_dialog(row['id'])
+                        
+                if show_move_review:
+                    with btn_cols[3]:
+                        if st.button("⚠️", key=f"mov_{row['id']}", help="Move to Review Queue (Confidence < 95%)"):
+                            res_code = api_client.move_to_review(row['id'])
+                            if res_code == 200:
+                                st.toast(f"Moved {row.get('filename', 'document')} to Review Queue!")
+                                st.rerun()
+                            else:
+                                st.error("Failed to move document status.")
             
             st.markdown("<hr style='margin: 0.2em 0; border: none; border-top: 1px solid #eee;' />", unsafe_allow_html=True)
 
@@ -164,12 +180,12 @@ def render_database_view():
     st.markdown("<br>", unsafe_allow_html=True)
     prev_col, text_col, next_col = st.columns([1, 2, 1])
     with prev_col:
-        if st.button("⬅️ Previous", disabled=(st.session_state.db_page == 1), use_container_width=True):
+        if st.button("⬅️ Previous", key="db_prev_page_btn", disabled=(st.session_state.db_page == 1), use_container_width=True):
             st.session_state.db_page -= 1
             st.rerun()
     with text_col:
         st.markdown(f"<div style='text-align: center;'>Page {st.session_state.db_page} of {total_pages}</div>", unsafe_allow_html=True)
     with next_col:
-        if st.button("Next ➡️", disabled=(st.session_state.db_page == total_pages), use_container_width=True):
+        if st.button("Next ➡️", key="db_next_page_btn", disabled=(st.session_state.db_page == total_pages), use_container_width=True):
             st.session_state.db_page += 1
             st.rerun()

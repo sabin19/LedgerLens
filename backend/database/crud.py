@@ -30,3 +30,12 @@ def get_all_documents():
     rows = conn.execute("SELECT * FROM documents ORDER BY created_at DESC").fetchall()
     conn.close()
     return [dict(row) for row in rows]
+
+def mark_for_review(doc_id: str):
+    conn = get_db_connection()
+    conn.execute(
+        "UPDATE documents SET status = 'pending_review', updated_at = CURRENT_TIMESTAMP WHERE id = ?",
+        (doc_id,)
+    )
+    conn.commit()
+    conn.close()

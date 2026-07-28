@@ -5,7 +5,7 @@ from prometheus_client import make_asgi_app
 # Import the centralized router
 from backend.api import routes
 
-app = FastAPI(title="LedgerLens API")
+app = FastAPI(title="Invoice Lense API")
 
 # Mount static assets
 app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")

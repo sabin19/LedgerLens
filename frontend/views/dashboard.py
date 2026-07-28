@@ -5,8 +5,11 @@ from datetime import datetime
 from frontend.services import api_client
 
 def render_dashboard():
-    st.markdown("### 📈 Executive Dashboard")
-    st.markdown("Overview of processed documents, total spend, and automation performance.")
+    header_col1, header_col2 = st.columns([3, 1])
+    with header_col1:
+        st.markdown("### 📈 Executive Dashboard")
+        st.markdown("Overview of processed documents, total spend, and automation performance.")
+     
     
     raw_data = api_client.fetch_documents()
     if raw_data is None:
@@ -15,8 +18,17 @@ def render_dashboard():
     else:
         dashboard_df = pd.DataFrame(raw_data)
 
+    if not dashboard_df.empty:
+            with header_col2:
+                if st.button("🚀 Process Document", key="btn_process_doc_dashboard", type="primary", use_container_width=True):
+                    st.session_state.switch_to_upload = True
+                    st.rerun()
+
     if dashboard_df.empty:
         st.info("Upload your first document to populate the dashboard!")
+        if st.button("🚀 Process Your First Document", key="btn_process_first_doc_dashboard", type="primary"):
+            st.session_state.switch_to_upload = True
+            st.rerun()
         return
 
     # --- Data Safeties & Assumptions ---
@@ -37,7 +49,8 @@ def render_dashboard():
     confidences = []
     
     for _, row in dashboard_df.iterrows():
-        json_str = row.get('extracted_json', '{}')
+        reviewed_raw = row.get('reviewed_json')
+        json_str = reviewed_raw if (pd.notna(reviewed_raw) and str(reviewed_raw).strip() != '') else row.get('extracted_json', '{}')
         try:
             data = json.loads(json_str) if isinstance(json_str, str) else json_str
             if not isinstance(data, dict):

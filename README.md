@@ -1,6 +1,6 @@
-# 🔍 LedgerLens — AI-Powered Invoice & Document Intelligence Platform
+# 🔍 Invoice Lense — AI-Powered Invoice & Document Intelligence Platform
 
-[![Live Application](https://img.shields.io/badge/Live%20Demo-LedgerLens%20Streamlit-blue?style=for-the-badge&logo=render)](https://ledgerlens-frontend-w7d6.onrender.com/)
+[![Live Application](https://img.shields.io/badge/Live%20Demo-Invoice%20Lense%20Streamlit-blue?style=for-the-badge&logo=render)](https://ledgerlens-frontend-w7d6.onrender.com/)
 [![Python](https://img.shields.io/badge/Python-3.11-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://python.org)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.100+-009688?style=for-the-badge&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com)
 [![Streamlit](https://img.shields.io/badge/Streamlit-1.30+-FF4B4B?style=for-the-badge&logo=streamlit&logoColor=white)](https://streamlit.io)
@@ -10,9 +10,9 @@
 
 ---
 
-**LedgerLens** is an enterprise-grade AI-powered invoice processing and document intelligence application that automates invoice data extraction, manual review queue management, sensitive data redaction, document history tracking, and financial analytics.
+**Invoice Lense** is an enterprise-grade AI-powered invoice processing and document intelligence application that automates invoice data extraction, manual review queue management, sensitive data redaction, document history tracking, and financial analytics.
 
-Built using **FastAPI**, **Streamlit**, **SQLite**, and **OpenAI GPT Vision Engine**, LedgerLens transforms raw, unstructured invoice and receipt images into structured, auditable financial data.
+Built using **FastAPI**, **Streamlit**, **SQLite**, and **OpenAI GPT Vision Engine**, Invoice Lense transforms raw, unstructured invoice and receipt images into structured, auditable financial data.
 
 ---
 
@@ -63,9 +63,11 @@ Automatically extracts structured financial fields with confidence scores using 
 ---
 
 ### ✍️ Manual Review (Human-in-the-Loop)
-- **Pending Queue Routing**: Low-confidence extractions (`< 90%`) are automatically flagged for review.
+- **Pending Queue Routing**: Low-confidence extractions (`< 75%`) are automatically flagged for review.
 - **Visual Verification**: View original watermarked receipt side-by-side with extracted values.
 - **Line-Item & Metadata Editing**: Edit vendor, amounts, dates, and line items directly in the UI.
+- **Strict Input Validation**: Validates all user inputs on metadata and line items to block `null`, `None`, `NaN`, or empty string submissions.
+- **Line Item Row Controls**: Add new line items or explicitly remove specific/accidental rows using dedicated deletion controls.
 - **Status Approval**: Approve and save corrected records to update the document state to `auto_approved`.
 
 ---
@@ -80,6 +82,7 @@ Automatically extracts structured financial fields with confidence scores using 
 ### 🗄️ Document Management
 - **Searchable Historical Ledger**: Browse all processed invoices.
 - **Filtering & Search**: Search by vendor name or filename, and filter by status (`auto_approved`, `pending_review`).
+- **Dynamic JSON Views**: Dedicated modal views for Extracted JSON (`🤖 Extracted JSON Data`) and Human-Reviewed JSON (`🧑‍💻 Reviewed JSON Data`).
 - **Pagination & Sorting**: Paginated data grid with creation timestamp sorting.
 
 ---
@@ -161,11 +164,11 @@ sequenceDiagram
         AI-->>API: Flagged = False
         API->>AI: Extract Data (gpt-4o-mini + InvoiceSchema)
         AI-->>API: Parsed Schema & Confidence Scores
-        API->>API: Evaluate Confidence Threshold (0.90)
+        API->>API: Evaluate Confidence Threshold (0.75)
         
-        alt Confidence >= 0.90
+        alt Confidence >= 0.75
             API->>API: Set Status = "auto_approved"
-        else Confidence < 0.90
+        else Confidence < 0.75
             API->>API: Set Status = "pending_review"
         end
         
@@ -215,6 +218,8 @@ LedgerLens/
 │   └── app.py                  # Streamlit entry point
 ├── tests/
 │   ├── test_api.py             # End-to-end API ingestion test
+│   ├── test_dialog_titles.py   # Unit tests for JSON view dialog titles
+│   ├── test_review_validation.py # Unit tests for human review input validation
 │   ├── test_schema_contracts.py# Pydantic schema contract tests
 │   └── pytest.ini              # Pytest configuration
 ├── Dockerfile.backend          # Production Dockerfile for backend service

@@ -56,10 +56,10 @@ def render_ingestion():
                 
                 btn_col1, btn_col2 = st.columns(2)
                 with btn_col1:
-                    if st.button("🔍 View Original", use_container_width=True):
+                    if st.button("🔍 View Original", key="btn_view_original_ingest", use_container_width=True):
                         view_original_image_dialog(image_bytes)
                 with btn_col2:
-                    if st.button("❌ Remove Image", type="secondary", use_container_width=True):
+                    if st.button("❌ Remove Image", key="btn_remove_image_ingest", type="secondary", use_container_width=True):
                         st.session_state.doc_image = None
                         st.rerun()
 
@@ -68,7 +68,7 @@ def render_ingestion():
         with st.container(height=600, border=True):
             if st.session_state.doc_image is not None:
                 doc = st.session_state.doc_image
-                process_btn = st.button("🚀 Process Document", type="primary", use_container_width=True)
+                process_btn = st.button("🚀 Process Document", key="btn_process_document_ingest", type="primary", use_container_width=True)
                 st.divider()
                 
                 if process_btn:
@@ -79,19 +79,36 @@ def render_ingestion():
                         if status_code == 200 and isinstance(result, dict):
                             status = result.get('status', 'unknown')
                                 
+                            data_obj = result.get("data", {})
+                            doc_id = result.get("doc_id")
+                            raw_conf = data_obj.get("overall_confidence", 1.0)
+                            try:
+                                conf_val = float(raw_conf)
+                            except (ValueError, TypeError):
+                                conf_val = 1.0
+
                             if status == "auto_approved":
                                 st.success(f"✅ Processed Successfully! (Status: {status})")
                             else:
                                 st.warning(f"⚠️ Flagged for Review (Status: {status})")
                                 
-                            st.json(result.get("data", {}))
+                            if conf_val < 0.95 and status != "pending_review" and doc_id:
+                                if st.button("⚠️ Move to Review Queue", key=f"ingest_mov_{doc_id}", type="secondary"):
+                                    res_code = api_client.move_to_review(doc_id)
+                                    if res_code == 200:
+                                        st.toast("✅ Moved document to Review Queue!")
+                                        st.rerun()
+                                    else:
+                                        st.error("Failed to update status in database.")
+
+                            st.json(data_obj)
                         elif status_code == 503:
                             st.error("Failed to connect to backend. Is the FastAPI server running?")
                         else:
                             st.error(f"Error {status_code}: {result}")
                 else:
                     st.markdown("### 🤖 System Ready")
-                    st.markdown("The LedgerLens vision engine is standing by...")
+                    st.markdown("The Invoice Lense vision engine is standing by...")
                     st.info("👆 Click **Process Document** to begin extraction.")
             else:
                 # Restored the empty state spacing
