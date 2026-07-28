@@ -32,7 +32,7 @@ Built using **FastAPI**, **Streamlit**, **SQLite**, and **OpenAI GPT Vision Engi
 6. [Environment Variables](#-environment-variables)
 7. [Step-by-Step Running & Setup](#-step-by-step-running--setup)
     - [Option 1: Native Python Setup](#option-1-native-python-setup)
-    - [Option 2: Docker Compose Setup](#option-2-docker-compose-setup)
+    - [Option 2: Docker Compose Setup(Recommended)](#option-2-docker-compose-setup)
 8. [Step-by-Step Deployment Guide (Render)](#-step-by-step-deployment-guide-render)
 9. [API Endpoints](#-api-endpoints)
 10. [Observability & Testing](#-observability--testing)
@@ -239,12 +239,6 @@ Create a `.env` file in the root directory:
 # Required: OpenAI API Key for Vision & Moderation
 OPENAI_API_KEY=your_openai_api_key_here
 
-# Optional: Vision Model (Default: gpt-4o-mini)
-OPENAI_VISION_MODEL=gpt-4o-mini
-
-# Optional: OpenAI API Max Retries (Default: 4)
-OPENAI_MAX_RETRIES=4
-
 # Streamlit API Connection URL (Default for local/docker)
 API_BASE_URL=http://localhost:8000
 
@@ -379,3 +373,15 @@ Metrics exposed at `/metrics`:
 - `token_cost_usd`: Total cumulative token cost metric.
 - `throughput_docs_total`: Total count of processed documents.
 - `auto_approvals_total`: Total count of automatically approved documents.
+
+# Author
+
+**SABINMON KS**
+
+Team Lead | Software Engineer
+Created in fulfillment of the Capstone Project requirements for the IIT Roorkee New Age Software Engineering Program.
+
+
+# Usage and Licensing
+
+This software is intended solely for educational purposes as a component of the IIT Roorkee academic curriculum.
